@@ -17,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/willyhuang18/opswat-OA/issues"
   },
-  "homepage": "https://github.com/willyhuang18/opswat-OA#readme"
+  "homepage": "https://github.com/willyhuang18/opswat-OA#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1"
+  }
 }
