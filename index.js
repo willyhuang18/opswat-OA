@@ -115,3 +115,9 @@ const run = () => {
         }
     });  
 };
+
+if (process.env.RUN) {
+    run();
+  } else {
+    console.log('RUN environment variable not set');
+  }
