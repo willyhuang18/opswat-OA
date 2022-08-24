@@ -1,0 +1,20 @@
+{
+  "name": "opswat-oa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willyhuang18/opswat-OA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/willyhuang18/opswat-OA/issues"
+  },
+  "homepage": "https://github.com/willyhuang18/opswat-OA#readme"
+}
