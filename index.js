@@ -2,6 +2,11 @@
 require('dotenv').config();
 // using axios to fetching the API endpoint
 const axios = require('axios');
+// using the crypto module in the Node.js -- OpenSSL's hash
+const crypto = require('crypto');
+// using the file system module to creating file
+const fs = require('fs');
+
 
 // getting the api working
 const instance = axios.create({
@@ -32,4 +37,46 @@ const printResults = (json) => {
     }
     console.log('----------------------------------');
     console.log('END');
+};
+
+// from here we are creating the file from the API endpoint
+const run = () => {
+    const hash = crypto.createHash('sha256');
+    const inputStream = fs.createReadStream('./test.txt');
+    inputStream.pipe(hash);
+
+    hash.on('readable', async () => {
+        const data = hash.read();
+        if (data) {
+            const fileDigest = data.toString('hex').toUpperCase();
+            try {
+                const res = await instance.get(`/hash/${fileDigest}`);
+                const { data } = res;
+                if (data[fileDigest] === 'Not Found') {
+                    console.log("Hash not found. Attempting file upload")
+                    try {
+                        const res = await instance.post('/file', fs.createReadStream('./test.txt'));
+                        const { data } = res;
+                        if (data.status === "inqueue") {
+                        console.log('File has been queued for scanning');
+                        } else {
+                            console.log('Unable to queue the file for scanning');
+                            console.log(data);
+                        }
+                    } catch (e) {
+                        if (e.response.status === 500) {
+                        console.log('Internal Server error, but starting poll loop anyway');
+                        }
+                        console.log("Something went wrong: ");
+                        console.log(e);
+                    }
+                } else {
+                    console.log('Cached result found');
+                    printResults(data);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    });  
 };
