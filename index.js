@@ -39,6 +39,25 @@ const printResults = (json) => {
     console.log('END');
 };
 
+// indicate a function to see if the file scan is correct
+const pollingLoop = async (digest) => {
+    let tries = 0;
+    while(true) {
+        const res = await instance.get(`/hash/${digest}`);
+        if (res.data.status === 'inqueue' || res.data[digest] == 'Not Found') {
+        console.log('File scan in process...');
+        tries += 1;
+        await sleep(3);
+        if (tries > 10) {
+            console.log('Polled 10 times so far. Is your file enormous?');
+        }
+        } else {
+        return res.data;
+        }
+    }
+}
+
+
 // from here we are creating the file from the API endpoint
 const run = () => {
     const hash = crypto.createHash('sha256');
@@ -59,6 +78,14 @@ const run = () => {
                         const { data } = res;
                         if (data.status === "inqueue") {
                         console.log('File has been queued for scanning');
+                        const results = await pollingLoop(fileDigest);
+                            if (results) {
+                                printResults(results);
+                                process.exit();
+                            } else {
+                                console.log('No result')
+                                process.exit();
+                            }
                         } else {
                             console.log('Unable to queue the file for scanning');
                             console.log(data);
@@ -66,6 +93,14 @@ const run = () => {
                     } catch (e) {
                         if (e.response.status === 500) {
                         console.log('Internal Server error, but starting poll loop anyway');
+                        const results = await pollingLoop(fileDigest);
+                        if (results) {
+                            printResults(results);
+                            process.exit();
+                        } else {
+                            console.log('No result')
+                            process.exit();
+                        }
                         }
                         console.log("Something went wrong: ");
                         console.log(e);
